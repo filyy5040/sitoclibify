@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClibifyMC - Server Minecraft Multigamemode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --azurro: #00c8ff;
+            --giallo-sabbia: #f5d76e;
+            --verde-palma: #7fb414;
+            --bg-dark: #121212;
+            --bg-darker: #0a0a0a;
+            --text-light: #f0f0f0;
+            --text-dim: #b0b0b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 200, 255, 0.1) 0%, transparent 30%), 
+                        radial-gradient(circle at 80% 70%, rgba(245, 215, 110, 0.1) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Animazione particelle */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: var(--azurro);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(to bottom, rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.7));
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            padding: 1rem 5%;
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo img {
+            height: 50px;
+            transition: transform 0.5s ease;
+        }
+
+        .logo:hover img {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--azurro), var(--giallo-sabbia));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover .logo-text {
+            text-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--azurro), var(--giallo-sabbia));
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--azurro);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, var(--azurro), var(--verde-palma));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 200, 255, 0.5);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 600px;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--azurro), var(--giallo-sabbia));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .hero-image {
+            position: absolute;
+            right: 5%;
+            width: 40%;
+            max-width: 370px;
+            filter: drop-shadow(0 0 30px rgba(0, 200, 255, 0.3));
+            animation: floatUpDown 4s ease-in-out infinite;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+    .discord-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #5865F2; /* Blu Discord */
+        color: white !important;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+        border: none;
+        cursor: pointer;
+    }
+    
+    .discord-button:hover {
+        background-color: #4752c4; /* Blu Discord più scuro */
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+    }
+    
+    .discord-button:active {
+        transform: translateY(1px);
+    }
+    
+    .discord-button i {
+        font-size: 1.2em;
+    }
+        /* Gamemodes Section */
+        .gamemodes {
+            padding: 5rem 5%;
+            background-color: var(--bg-darker);
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--azurro), var(--giallo-sabbia), transparent);
+            border-radius: 3px;
+        }
+
+        .gamemodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .gamemode-card {
+            background: linear-gradient(145deg, #1a1a1a, #151515);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 200, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .gamemode-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 200, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .gamemode-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 200, 255, 0.2);
+            border-color: rgba(0, 200, 255, 0.3);
+        }
+
+        .gamemode-card:hover::before {
+            opacity: 1;
+            animation: rotateLight 6s linear infinite;
+        }
+
+        @keyframes rotateLight {
+            0% {
+                transform: rotate(45deg);
+            }
+            100% {
+                transform: rotate(405deg);
+            }
+        }
+
+        .gamemode-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--azurro);
+            transition: all 0.3s ease;
+        }
+
+        .gamemode-card:hover .gamemode-icon {
+            transform: scale(1.2);
+            color: var(--giallo-sabbia);
+        }
+
+        .gamemode-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            position: relative;
+            display: inline-block;
+        }
+
+        .gamemode-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--azurro), var(--giallo-sabbia));
+            transition: width 0.3s ease;
+        }
+
+        .gamemode-card:hover .gamemode-title::after {
+            width: 100%;
+        }
+
+        .gamemode-description {
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .gamemode-button {
+            background: transparent;
+            color: var(--azurro);
+            border: 1px solid var(--azurro);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gamemode-button i {
+            transition: transform 0.3s ease;
+        }
+
+        .gamemode-button:hover {
+            background: rgba(0, 200, 255, 0.1);
+            color: var(--giallo-sabbia);
+            border-color: var(--giallo-sabbia);
+            transform: translateX(5px);
+        }
+
+        .gamemode-button:hover i {
+            transform: translateX(3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 5%;
+            position: relative;
+        }
+
+        .features::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(127, 180, 20, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 10px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(127, 180, 20, 0.1);
+        }
+
+        .feature-card:hover {
+            background: rgba(40, 40, 40, 0.7);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: rgba(127, 180, 20, 0.3);
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 200, 255, 0.05), rgba(245, 215, 110, 0.05));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--verde-palma);
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .feature-description {
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(to bottom, #0a0a0a, #000);
+            padding: 3rem 5%;
+            border-top: 1px solid rgba(0, 200, 255, 0.1);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--azurro);
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(to right, var(--azurro), transparent);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-link a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .footer-link a:hover {
+            color: var(--giallo-sabbia);
+            transform: translateX(5px);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--azurro);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 200, 255, 0.3);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Animazioni personalizzate */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 30px) {
+            .hero-image {
+                width: 10%;
+                opacity: 0.7;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                text-align: center;
+                justify-content: center;
+            }
+            .hero-content {
+                max-width: 100%;
+            }
+            .hero-image {
+                display: none;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Effetti speciali */
+        .glow-text {
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .hover-grow {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-grow:hover {
+            transform: scale(1.05);
+        }
+
+        /* Tooltip personalizzato */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(10, 10, 10, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(10, 10, 10, 0.9) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particelle fluttuanti -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header id="header">
+        <nav>
+            <div class="logo">
+                <img src="https://qu.ax/zkfaB.png" alt="ClibifyMC Logo" class="hover-grow">
+                <span class="logo-text glow-text">ClibifyMC</span>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#gamemodes" class="nav-link">Gamemodes</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="https://discord.gg/8aSA8p3Vgp" class="nav-link">Community Discord</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Esplora Mondi Straordinari in <span class="glow-text" style="color: var(--azurro);">ClibifyMC</span></h1>
+            <p>Unisciti a migliaia di giocatori in un'avventura Minecraft senza confini. Sfida, costruisci, esplora e fai nuove amicizie nei nostri gamemode unici!</p>
+            <div class="hero-buttons">
+<button class="cta-button pulse" id="joinButton">
+    Unisciti Ora <i class="fas fa-user-plus"></i>
+</button>
+                <button class="gamemode-button" onclick="document.getElementById('gamemodes').scrollIntoView({ behavior: 'smooth' })">
+    Scopri di più <i class="fas fa-chevron-right"></i>
+</button>
+<a href="https://discord.gg/8aSA8p3Vgp" 
+   class="discord-button" 
+   target="_blank" 
+   rel="noopener noreferrer">
+   <i class="fab fa-discord"></i> Unisciti al Discord
+</a>
+
+            </div>
+        </div>
+        <img src="https://qu.ax/bUQHV.png" alt="Minecraft Character" class="hero-image hover-grow">
+    </section>
+
+    <!-- Gamemodes Section -->
+    <section class="gamemodes" id="gamemodes">
+        <h2 class="section-title">I Nostri Gamemodes</h2>
+        <div class="gamemodes-grid">
+            <!-- Gumball Box -->
+            <div class="gamemode-card">
+                <div class="gamemode-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3 class="gamemode-title">Gumball Box</h3>
+                <p class="gamemode-description">Un boxpvp dedicato a Gumball, diventa il più forte e competi con tutti in battaglie epiche e strategiche.</p>
+            </div>
+
+            <!-- SMP -->
+            <div class="gamemode-card">
+                <div class="gamemode-icon">
+                    <i class="fas fa-tree"></i>
+                </div>
+                <h3 class="gamemode-title">SMP</h3>
+                <p class="gamemode-description">Competi con tutti i giocatori e diventa il più forte di tutti!</p>
+            </div>
+
+            <!-- Space Prison -->
+            <div class="gamemode-card">
+                <div class="gamemode-icon">
+                    <i class="fas fa-meteor"></i>
+                </div>
+                <h3 class="gamemode-title">Space Prison</h3>
+                <p class="gamemode-description">Mina nelle miniere spaziali, ricche e stupende, per avanzare di livello e dominare la prigione intergalattica.</p>
+            </div>
+
+            <!-- Lava Rise -->
+            <div class="gamemode-card">
+                <div class="gamemode-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h3 class="gamemode-title">Lava Rise</h3>
+                <p class="gamemode-description">Sopravvivi in una zona ristretta con la lava che sale ogni 30 secondi. Vinci e divertiti in questo gamemode adrenalinico!</p>
+            </div>
+
+            <!-- Oasi -->
+            <div class="gamemode-card">
+                <div class="gamemode-icon">
+                    <i class="fas fa-umbrella-beach"></i>
+                </div>
+                <h3 class="gamemode-title">Oasi</h3>
+                <p class="gamemode-description">Divertiti, fai nuove amicizie, partecipa a minigames e integrati nella community in una modalità dove ti puoi rilassare!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">Perché Sceglierci</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h3 class="feature-title">Server Potenti</h3>
+                <p class="feature-description">Hardware di ultima generazione per garantire prestazioni ottimali e zero lag.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="feature-title">Community Attiva</h3>
+                <p class="feature-description">Unisciti a una community amichevole e appassionata di Minecraft.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Anti-Cheat Avanzato</h3>
+                <p class="feature-description">Sistemi avanzati per garantire un gameplay equo e senza cheat.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <h3 class="feature-title">Aggiornamenti Costanti</h3>
+                <p class="feature-description">Nuovi contenuti e miglioramenti aggiunti regolarmente.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="feature-title">Supporto 24/7</h3>
+                <p class="feature-description">Staff sempre disponibile per aiutarti con qualsiasi problema.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <h3 class="feature-title">Riconoscimenti</h3>
+                <p class="feature-description">Sistema di rank e premi per i giocatori più attivi e meritevoli.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>ClibifyMC</h3>
+                <p>Il miglior server Minecraft multigamemode con una community fantastica e tante avventure da vivere!</p>
+            </div>
+            <div class="footer-column">
+                <h3>Link Veloci</h3>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#home">Home</a></li>
+                    <li class="footer-link"><a href="#gamemodes">Gamemodes</a></li>
+                    <li class="footer-link"><a href="#features">Features</a></li>
+                    <li class="footer-link"><a href="https://discord.gg/8aSA8p3Vgp">Community Discord</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Connettiti</h3>
+                <p>IP: <strong>mc.clibify.xyz</strong></p>
+                <button class="cta-button" style="margin-top: 1rem;">
+                    Copia IP <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ClibifyMC. Tutti i diritti riservati. Non affiliato con Mojang o Microsoft.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Particelle fluttuanti
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Dimensioni casuali
+                const size = Math.random() * 10 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Posizione iniziale casuale
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Colore casuale tra i colori del tema
+                const colors = ['#00c8ff', '#f5d76e', '#7fb414'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.backgroundColor = randomColor;
+                
+                // Durata animazione casuale
+                const duration = Math.random() * 20 + 10;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Delay casuale
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Header scroll effect
+        function handleScroll() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        }
+
+        // Animazione smooth scroll per i link
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Tooltip dinamici
+        function initTooltips() {
+            const tooltips = document.querySelectorAll('.tooltip');
+            
+            tooltips.forEach(tooltip => {
+                tooltip.addEventListener('mouseenter', function() {
+                    const tooltipText = this.querySelector('.tooltip-text');
+                    if (tooltipText) {
+                        tooltipText.style.transition = 'none';
+                        tooltipText.style.opacity = '0';
+                        tooltipText.style.visibility = 'hidden';
+                        
+                        setTimeout(() => {
+                            tooltipText.style.transition = 'opacity 0.3s';
+                            tooltipText.style.opacity = '1';
+                            tooltipText.style.visibility = 'visible';
+                        }, 10);
+                    }
+                });
+            });
+        }
+
+        // Effetto parallax per l'hero image
+        function parallaxEffect() {
+            const heroImage = document.querySelector('.hero-image');
+            if (heroImage) {
+                window.addEventListener('scroll', function() {
+                    const scrollPosition = window.pageYOffset;
+                    heroImage.style.transform = `translateY(${scrollPosition * 0.3}px)`;
+                });
+            }
+        }
+
+        // Animazione al caricamento della pagina
+        function animateOnLoad() {
+            const elements = document.querySelectorAll('.hero-content, .gamemode-card, .feature-card');
+            
+            elements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 200);
+                
+                // Imposta lo stato iniziale
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            });
+        }
+
+        // Copia IP al click
+        function setupCopyIP() {
+            const copyButton = document.querySelector('.footer-column button.cta-button');
+            if (copyButton) {
+                copyButton.addEventListener('click', function() {
+                    navigator.clipboard.writeText('mc.clibify.xyz')
+                        .then(() => {
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-check"></i> IP Copiato!';
+                            
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Errore durante la copia: ', err);
+                        });
+                });
+            }
+        }
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            handleScroll();
+            initTooltips();
+            parallaxEffect();
+            animateOnLoad();
+            setupCopyIP();
+            
+            window.addEventListener('scroll', handleScroll);
+        });
+            // Copia IP al click sul bottone Unisciti Ora
+    document.getElementById('joinButton').addEventListener('click', function() {
+        const ip = 'mc.clibify.xyz'; // Sostituisci con il tuo IP reale
+        navigator.clipboard.writeText(ip)
+            .then(() => {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> IP Copiato!';
+                this.classList.remove('pulse'); // Rimuove l'effetto pulse durante la conferma
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.classList.add('pulse'); // Ripristina l'effetto pulse
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Errore durante la copia: ', err);
+                // Fallback per browser che non supportano clipboard API
+                const tempInput = document.createElement('input');
+                tempInput.value = ip;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> IP Copiato!';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+    });
+    </script>
+</body>
+</html>
